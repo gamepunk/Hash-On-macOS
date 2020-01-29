@@ -12,11 +12,11 @@ class DragView: NSView {
     
     var delegate: DragViewDeledate?
     
-//    var isReceivingDrag = false {
-//       didSet {
-//           needsDisplay = true
-//       }
-//   }
+    var isReceivingDrag = false {
+       didSet {
+           needsDisplay = true
+       }
+   }
     override func draw(_ dirtyRect: NSRect) {
         super.draw(dirtyRect)
     }
@@ -28,18 +28,24 @@ class DragView: NSView {
     
     
     override func draggingEntered(_ sender: NSDraggingInfo) -> NSDragOperation {
+        let pasteBoard = sender.draggingPasteboard
+        let fileURL = NSURL(from: pasteBoard)! as URL
+        guard fileURL.absoluteString.hasSuffix("/") != true else {
+            return []
+        }
         return .copy
     }
-    
+
     override func draggingEnded(_ sender: NSDraggingInfo) {
-//        isReceivingDrag = false
+        isReceivingDrag = false
     }
     
     override func draggingExited(_ sender: NSDraggingInfo?) {
-//        isReceivingDrag = false
+        isReceivingDrag = false
     }
     
     override func prepareForDragOperation(_ sender: NSDraggingInfo) -> Bool {
+        
         return true
     }
     
@@ -47,9 +53,6 @@ class DragView: NSView {
 //        isReceivingDrag = false
         let pasteBoard = sender.draggingPasteboard
         let fileURL = NSURL(from: pasteBoard)! as URL
-        guard fileURL.absoluteString.hasSuffix("/") != true else {
-            return false
-        }
         delegate?.getFileURL(fileURL)
         return true
     }
