@@ -709,7 +709,7 @@
         <scene sceneID="APF-hn-LqF">
             <objects>
                 <viewController title="MainViewController" id="Je5-vH-jhS" customClass="MainViewController" customModule="Hash" customModuleProvider="target" sceneMemberID="viewController">
-                    <visualEffectView key="view" focusRingType="exterior" blendingMode="behindWindow" material="appearanceBased" state="active" id="E5d-Am-5aj">
+                    <visualEffectView key="view" focusRingType="exterior" blendingMode="behindWindow" material="titlebar" state="active" id="E5d-Am-5aj">
                         <rect key="frame" x="0.0" y="0.0" width="360" height="240"/>
                         <autoresizingMask key="autoresizingMask"/>
                         <subviews>
@@ -745,7 +745,7 @@
                                 </textFieldCell>
                             </textField>
                             <view focusRingType="none" id="jLq-x0-pPg" customClass="DragView" customModule="Hash" customModuleProvider="target">
-                                <rect key="frame" x="0.0" y="0.0" width="360" height="240"/>
+                                <rect key="frame" x="60" y="60" width="240" height="120"/>
                                 <autoresizingMask key="autoresizingMask"/>
                             </view>
                         </subviews>
@@ -775,7 +775,7 @@
         <scene sceneID="5hx-oS-gU2">
             <objects>
                 <viewController title="DetailViewController" storyboardIdentifier="DetailViewController" id="rgi-hO-IRQ" customClass="DetailViewController" customModule="Hash" customModuleProvider="target" sceneMemberID="viewController">
-                    <visualEffectView key="view" blendingMode="behindWindow" material="underWindowBackground" state="followsWindowActiveState" id="LPd-2D-zvN">
+                    <visualEffectView key="view" blendingMode="behindWindow" material="titlebar" state="followsWindowActiveState" id="LPd-2D-zvN">
                         <rect key="frame" x="0.0" y="0.0" width="360" height="240"/>
                         <autoresizingMask key="autoresizingMask"/>
                         <subviews>
@@ -956,6 +956,17 @@
                                     </gridCell>
                                 </gridCells>
                             </gridView>
+                            <button verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="zfG-VN-iL0">
+                                <rect key="frame" x="308" y="209" width="39" height="17"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                                <buttonCell key="cell" type="inline" title="导出" bezelStyle="inline" alignment="center" borderStyle="border" inset="2" id="GJy-IC-kiC">
+                                    <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
+                                    <font key="font" metaFont="smallSystemBold"/>
+                                </buttonCell>
+                                <connections>
+                                    <action selector="exportButtonPressed:" target="rgi-hO-IRQ" id="apo-ih-2VZ"/>
+                                </connections>
+                            </button>
                         </subviews>
                     </visualEffectView>
                     <connections>

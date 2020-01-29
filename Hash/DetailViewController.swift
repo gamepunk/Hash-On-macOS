@@ -43,9 +43,30 @@ class DetailViewController: NSViewController {
         }
     }
     
+    @IBAction func exportButtonPressed(_ sender: NSButton) {
+        print("Export button pressed")
+        let save = NSSavePanel()
+        save.canCreateDirectories = true
+        save.showsTagField = false
+        save.nameFieldStringValue = "hash.txt"
+        save.directoryURL = URL(fileURLWithPath: "\(NSHomeDirectory())/Desktop")
+        save.beginSheetModal(for: view.window!) { (result) in
+            if result == NSApplication.ModalResponse.OK {
+                let text = "MD4:\n\(self.md4Label.title)\nMD5:\n\(self.md5Label.title)\nSHA1:\n\(self.sha1Label.title)\nSHA256:\n\(self.sha256Label.title)\nSHA512:\n\(self.sha512Label.title)\n"
+                do {
+                    try text.write(to: save.url!, atomically: true, encoding: .utf8)
+                } catch {
+                    print("导出文件遇到错误:",error.localizedDescription)
+                }
+            }            
+        }
+        
+        
+        
+    }
     override func viewWillAppear() {
         super.viewWillAppear()
-        updateLabels()
+        update()
     }
     
     override func viewDidLoad() {
@@ -53,11 +74,13 @@ class DetailViewController: NSViewController {
         // Do view setup here.        
     }
     
-    func updateLabels() {
+    func update() {
         view.window?.titlebarAppearsTransparent = true
         view.window?.styleMask.insert([.fullSizeContentView])
         view.window?.styleMask.remove([.resizable])
+//        view.window?
         view.window?.title = (detail.title.removingPercentEncoding?.components(separatedBy: "/").last)!
+        
         md4Label.title = detail.MD4
         md5Label.title = detail.MD5
         sha1Label.title = detail.SHA1

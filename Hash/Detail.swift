@@ -18,14 +18,6 @@ struct Detail {
     var SHA256: String!
     var SHA512: String!
     
-    init(title: String, MD4: String, MD5: String, SHA1: String, SHA256: String, SHA512:String) {
-        self.title = title
-        self.MD4 = MD4
-        self.MD5 = MD5
-        self.SHA1 = SHA1
-        self.SHA256 = SHA256
-        self.SHA512 = SHA512
-    }
     init(url: URL) {
         self.url = url
         self.title = url.absoluteString
@@ -36,216 +28,163 @@ struct Detail {
         self.SHA512 = getSHA512()
     }
     
-    private func getMD4() -> String {
+    private func getMD4() -> String? {
+        let bufferSize = 1024 * 1024
         do {
-            let bufferSize = 1024 * 1024
-            // Open file for reading:
+//            根据URL打开文件
             let file = try FileHandle(forReadingFrom: self.url)
             defer {
                 file.closeFile()
             }
+//            初始化内容
+            var context = CC_MD4_CTX()
+            CC_MD4_Init(&context)
             
-            // Create and initialize SHA256 context:
-            var context = CC_SHA256_CTX()
-            CC_SHA256_Init(&context)
-            
-            // Read up to `bufferSize` bytes, until EOF is reached, and update SHA256 context:
-            while autoreleasepool(invoking: {
-                // Read up to `bufferSize` bytes
-                let data = file.readData(ofLength: bufferSize)
-                if data.count > 0 {
-                    data.withUnsafeBytes {
-                        _ = CC_SHA256_Update(&context, $0, numericCast(data.count))
-                    }
-                    // Continue
-                    return true
-                } else {
-                    // End of file
-                    return false
+//            读取文件信息
+            while case let data = file.readData(ofLength: bufferSize), data.count > 0 {
+                data.withUnsafeBytes {
+                    _ = CC_MD4_Update(&context, $0, CC_LONG(data.count))
                 }
-            }) { }
-            
-            // Compute the SHA256 digest:
-            var digest = Data(count: Int(CC_SHA256_DIGEST_LENGTH))
+            }
+
+//            计算 MD4 摘要
+            var digest = Data(count: Int(CC_MD4_DIGEST_LENGTH))
             digest.withUnsafeMutableBytes {
-                _ = CC_SHA256_Final($0, &context)
+                _ = CC_MD4_Final($0, &context)
             }
             
-            let calculatedHash = digest.map { String(format: "%02hhx", $0) }.joined()
-            return calculatedHash
+            return digest.map { String(format: "%02hhx", $0) }.joined()
         } catch {
-            return ""
+            print("Can't open file: \(error.localizedDescription)")
+            return nil
         }
     }
     
     private func getMD5() -> String? {
-        do {
-            let bufferSize = 1024 * 1024
-            // Open file for reading:
-            let file = try FileHandle(forReadingFrom: self.url)
-            defer {
-                file.closeFile()
-            }
-            
-            // Create and initialize SHA256 context:
-            var context = CC_SHA256_CTX()
-            CC_SHA256_Init(&context)
-            
-            // Read up to `bufferSize` bytes, until EOF is reached, and update SHA256 context:
-            while autoreleasepool(invoking: {
-                // Read up to `bufferSize` bytes
-                let data = file.readData(ofLength: bufferSize)
-                if data.count > 0 {
-                    data.withUnsafeBytes {
-                        _ = CC_SHA256_Update(&context, $0, numericCast(data.count))
+                let bufferSize = 1024 * 1024
+                do {
+        //            根据URL打开文件
+                    let file = try FileHandle(forReadingFrom: self.url)
+                    defer {
+                        file.closeFile()
                     }
-                    // Continue
-                    return true
-                } else {
-                    // End of file
-                    return false
+        //            初始化内容
+                    var context = CC_MD5_CTX()
+                    CC_MD5_Init(&context)
+                    
+        //            读取文件信息
+                    while case let data = file.readData(ofLength: bufferSize), data.count > 0 {
+                        data.withUnsafeBytes {
+                            _ = CC_MD5_Update(&context, $0, CC_LONG(data.count))
+                        }
+                    }
+
+        //            计算 MD4 摘要
+                    var digest = Data(count: Int(CC_MD5_DIGEST_LENGTH))
+                    digest.withUnsafeMutableBytes {
+                        _ = CC_MD5_Final($0, &context)
+                    }
+                    
+                    return digest.map { String(format: "%02hhx", $0) }.joined()
+                } catch {
+                    print("Can't open file: \(error.localizedDescription)")
+                    return nil
                 }
-            }) { }
-            
-            // Compute the SHA256 digest:
-            var digest = Data(count: Int(CC_SHA256_DIGEST_LENGTH))
-            digest.withUnsafeMutableBytes {
-                _ = CC_SHA256_Final($0, &context)
-            }
-            
-            let calculatedHash = digest.map { String(format: "%02hhx", $0) }.joined()
-            return calculatedHash
-        } catch {
-            print(error)
-            return "nil"
-        }
     }
     
-    private func getSHA1() -> String {
-        do {
-            let bufferSize = 1024 * 1024
-            // Open file for reading:
-            let file = try FileHandle(forReadingFrom: self.url)
-            defer {
-                file.closeFile()
-            }
-            
-            // Create and initialize SHA256 context:
-            var context = CC_SHA256_CTX()
-            CC_SHA256_Init(&context)
-            
-            // Read up to `bufferSize` bytes, until EOF is reached, and update SHA256 context:
-            while autoreleasepool(invoking: {
-                // Read up to `bufferSize` bytes
-                let data = file.readData(ofLength: bufferSize)
-                if data.count > 0 {
-                    data.withUnsafeBytes {
-                        _ = CC_SHA256_Update(&context, $0, numericCast(data.count))
+    private func getSHA1() -> String? {
+                let bufferSize = 1024 * 1024
+                do {
+        //            根据URL打开文件
+                    let file = try FileHandle(forReadingFrom: self.url)
+                    defer {
+                        file.closeFile()
                     }
-                    // Continue
-                    return true
-                } else {
-                    // End of file
-                    return false
+        //            初始化内容
+                    var context = CC_SHA1_CTX()
+                    CC_SHA1_Init(&context)
+                    
+        //            读取文件信息
+                    while case let data = file.readData(ofLength: bufferSize), data.count > 0 {
+                        data.withUnsafeBytes {
+                            _ = CC_SHA1_Update(&context, $0, CC_LONG(data.count))
+                        }
+                    }
+
+        //            计算 MD4 摘要
+                    var digest = Data(count: Int(CC_SHA1_DIGEST_LENGTH))
+                    digest.withUnsafeMutableBytes {
+                        _ = CC_SHA1_Final($0, &context)
+                    }
+                    
+                    return digest.map { String(format: "%02hhx", $0) }.joined()
+                } catch {
+                    print("Can't open file: \(error.localizedDescription)")
+                    return nil
                 }
-            }) { }
-            
-            // Compute the SHA256 digest:
-            var digest = Data(count: Int(CC_SHA256_DIGEST_LENGTH))
-            digest.withUnsafeMutableBytes {
-                _ = CC_SHA256_Final($0, &context)
-            }
-            let calculatedHash = digest.map { String(format: "%02hhx", $0) }.joined()
-            return calculatedHash
-        } catch {
-            print(error)
-            return "nil"
-        }
     }
     
     private func getSHA256() -> String? {
-        do {
-            let bufferSize = 1024 * 1024
-            // Open file for reading:
-            let file = try FileHandle(forReadingFrom: self.url)
-            defer {
-                file.closeFile()
-            }
-            
-            // Create and initialize SHA256 context:
-            var context = CC_SHA256_CTX()
-            CC_SHA256_Init(&context)
-            
-            // Read up to `bufferSize` bytes, until EOF is reached, and update SHA256 context:
-            while autoreleasepool(invoking: {
-                // Read up to `bufferSize` bytes
-                let data = file.readData(ofLength: bufferSize)
-                if data.count > 0 {
-                    data.withUnsafeBytes {
-                        _ = CC_SHA256_Update(&context, $0, numericCast(data.count))
+        let bufferSize = 1024 * 1024
+                do {
+        //            根据URL打开文件
+                    let file = try FileHandle(forReadingFrom: self.url)
+                    defer {
+                        file.closeFile()
                     }
-                    // Continue
-                    return true
-                } else {
-                    // End of file
-                    return false
+        //            初始化内容
+                    var context = CC_SHA256_CTX()
+                    CC_SHA256_Init(&context)
+                    
+        //            读取文件信息
+                    while case let data = file.readData(ofLength: bufferSize), data.count > 0 {
+                        data.withUnsafeBytes {
+                            _ = CC_SHA256_Update(&context, $0, CC_LONG(data.count))
+                        }
+                    }
+
+        //            计算 SHA256 摘要
+                    var digest = Data(count: Int(CC_SHA256_DIGEST_LENGTH))
+                    digest.withUnsafeMutableBytes {
+                        _ = CC_SHA256_Final($0, &context)
+                    }
+                    
+                    return digest.map { String(format: "%02hhx", $0) }.joined()
+                } catch {
+                    print("Can't open file: \(error.localizedDescription)")
+                    return nil
                 }
-            }) { }
-            
-            // Compute the SHA256 digest:
-            var digest = Data(count: Int(CC_SHA256_DIGEST_LENGTH))
-            digest.withUnsafeMutableBytes {
-                _ = CC_SHA256_Final($0, &context)
-            }
-            
-            let calculatedHash = digest.map { String(format: "%02hhx", $0) }.joined()
-            return calculatedHash
-        } catch {
-            print(error)
-            return "nil"
-        }
     }
     
-    private func getSHA512() -> String {
-        do {
-            let bufferSize = 1024 * 1024
-            // Open file for reading:
-            let file = try FileHandle(forReadingFrom: self.url)
-            defer {
-                file.closeFile()
-            }
-            
-            // Create and initialize SHA256 context:
-            var context = CC_SHA256_CTX()
-            CC_SHA256_Init(&context)
-            
-            // Read up to `bufferSize` bytes, until EOF is reached, and update SHA256 context:
-            while autoreleasepool(invoking: {
-                // Read up to `bufferSize` bytes
-                let data = file.readData(ofLength: bufferSize)
-                if data.count > 0 {
-                    data.withUnsafeBytes {
-                        _ = CC_SHA256_Update(&context, $0, numericCast(data.count))
+    private func getSHA512() -> String? {
+                let bufferSize = 1024 * 1024
+                do {
+        //            根据URL打开文件
+                    let file = try FileHandle(forReadingFrom: self.url)
+                    defer {
+                        file.closeFile()
                     }
-                    // Continue
-                    return true
-                } else {
-                    // End of file
-                    return false
+        //            初始化内容
+                    var context = CC_SHA512_CTX()
+                    CC_SHA512_Init(&context)
+                    
+        //            读取文件信息
+                    while case let data = file.readData(ofLength: bufferSize), data.count > 0 {
+                        data.withUnsafeBytes {
+                            _ = CC_SHA512_Update(&context, $0, CC_LONG(data.count))
+                        }
+                    }
+
+        //            计算 SHA512 摘要
+                    var digest = Data(count: Int(CC_SHA512_DIGEST_LENGTH))
+                    digest.withUnsafeMutableBytes {
+                        _ = CC_SHA512_Final($0, &context)
+                    }
+                    
+                    return digest.map { String(format: "%02hhx", $0) }.joined()
+                } catch {
+                    print("Can't open file: \(error.localizedDescription)")
+                    return nil
                 }
-            }) { }
-            
-            // Compute the SHA256 digest:
-            var digest = Data(count: Int(CC_SHA256_DIGEST_LENGTH))
-            digest.withUnsafeMutableBytes {
-                _ = CC_SHA256_Final($0, &context)
-            }
-            
-            let calculatedHash = digest.map { String(format: "%02hhx", $0) }.joined()
-            return calculatedHash
-        } catch {
-            print(error)
-            return "nil"
-        }
     }
 }
